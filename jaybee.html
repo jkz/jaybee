@@ -1,13 +1,46 @@
 <head>
   <title>jaybee</title>
+  <script src="//connect.soundcloud.com/sdk.js"></script>
+  <script>
+    SC.initialize({
+      client_id: "bddbc50b3432a6c8034ea30a8f73ee1c",
+      redirect_uri: "http://dev.jaybee.com:3000/callback.html"
+    });
+  </script>
 </head>
 
 <body>
-  {{> hello}}
+  <section>
+    <aside class="search_col">
+      {{> search}}
+      {{> searchResults}}
+    </aside><article class="playlist_col">
+      {{> playlist}}
+    </article>
+  </section>
 </body>
 
-<template name="hello">
-  <h1>Hello World!</h1>
-  {{greeting}}
-  <input type="button" value="Click" />
+<template name="playlist">
+  <h2>Queued</h2>
+  {{#each tracks}}
+    <li>
+      <a data-track-id="{{id}}">{{title}} - {{user.username}} <span><small>({{length duration}})</small></span></a>
+    </li>
+  {{/each}}
+</template>
+
+<template name="search">
+  <form id="search_form">
+    <input class="search" type="text" name="search" placeholder="Search for a track…" />
+  </form>
+</template>
+
+<template name="searchResults">
+  <ul>
+    {{#each results}}
+      <li>
+        <a data-track-id="{{id}}">{{title}} - {{user.username}} <span><small>({{length duration}})</small></span></a>
+      </li>
+    {{/each}}
+  </ul>
 </template>
