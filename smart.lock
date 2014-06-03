@@ -1,0 +1,20 @@
+{
+  "meteor": {},
+  "dependencies": {
+    "basePackages": {
+      "accounts-soundcloud": {}
+    },
+    "packages": {
+      "accounts-soundcloud": {
+        "git": "https://github.com/sylvaingi/meteor-accounts-soundcloud.git",
+        "tag": "v0.1.2",
+        "commit": "962879b116bdb107752fc1381d0e840f802e00ca"
+      },
+      "soundcloud": {
+        "git": "https://github.com/sylvaingi/meteor-soundcloud.git",
+        "tag": "v0.1.1",
+        "commit": "7e152a1fa892d73d9ef41f070f6d112014283983"
+      }
+    }
+  }
+}

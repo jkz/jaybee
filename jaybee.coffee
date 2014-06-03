@@ -23,7 +23,7 @@ if Meteor.isClient
 
   # Playlist
   Template.playlist.tracks = ->
-    return PlaylistTracks.find {}, 
+    return PlaylistTracks.find {now_playing: false}, 
       sort: [["created_at", "asc"]]
 
   Template.playlist.length = (duration) ->
@@ -61,42 +61,47 @@ if Meteor.isClient
       toggleMute()
       return
 
-  Template.controls.now_playing = ->
-    return Session.get("now_playing")
+    # Controls
+    Template.controls.now_playing = ->
+      return nowPlaying()
 
-  Template.controls.length = (duration) ->
-    return track_length(duration)
+    Template.controls.length = (duration) ->
+      return track_length(duration)
 
-  Template.controls.elapsed = ->
-    return Session.get("now_playing_elapsed")
+    Template.controls.elapsed = ->
+      position = Session.get("local_track_position")
+      if position
+        return track_length Session.get("local_track_position")
+      else
+        return
 
 if Meteor.isServer
   Meteor.startup ->
 
 play = ->
-  track = Session.get("now_playing")
+  track = nowPlaying()
 
   # Set now_playing
   unless track
     track = nextTrack()
-    Session.set("now_playing", track)
+    markAsNowPlaying track._id
 
   # Play it
   SC.stream "/tracks/#{track.track_id}", (sound) ->
-    # Stop anything thats playing
-    soundManager.stopAll()
-    
-    # Set Session sound
-    Session.set("now_playing_sound", sound)
-    
-    # Play it
-    sound.play
-      onfinish: playNext
-      whileplaying: ->
-        elapsed @position
+      # Stop anything thats playing
+      soundManager.stopAll()
+      
+      # Set Session sound
+      Session.set("now_playing_sound", sound)
+      
+      # Set Position of track
+      # sound.setPosition(track.position)
 
-  # Remove from playlist
-  removeFromPlaylist track._id
+      # Play it
+      sound.play
+        onfinish: playNext
+        whileplaying: ->
+          elapsed @position
 
 playNext = ->
   # Clear the currently playing Session data
@@ -107,12 +112,42 @@ playNext = ->
   play()
 
 elapsed = (position) ->
-  elapsed_time = track_length position
-  Session.set("now_playing_elapsed", elapsed_time)
+  track = nowPlaying()
+  Session.set("local_track_position", position)
+  updateTime(track, position)
+
+updateTime = (track, position) ->
+  # Only update the track position if
+  # we're the only client up to date/on-time.
+  if position > track.position
+    # console.log("updating time to #{position}")
+    PlaylistTracks.update track._id,
+      $set:
+        position: position
+
+nowPlaying = ->
+  PlaylistTracks.findOne {now_playing: true},
+    sort: [["created_at", "asc"]]
+
+markAsNowPlaying = (id) ->
+  PlaylistTracks.update id,
+    $set:
+      now_playing: true
+
+nextTrack = ->
+  PlaylistTracks.findOne {},
+    sort: [["created_at", "asc"]]
 
 clearPlaying = ->
-  Session.set("now_playing", null)
+  # Clear Sound Manager sound from session
   Session.set("now_playing_sound", null)
+
+  # Clear local time position
+  Session.set("local_track_position", null)
+
+  # Mark track as not playing
+  track = nowPlaying()
+  PlaylistTracks.remove track._id
 
 togglePause = ->
   now_playing_sound = Session.get("now_playing_sound")
@@ -146,10 +181,6 @@ toggleMute = ->
       Session.set("pre_mute_volume", volume)
       sound.setVolume(0)
 
-nextTrack = ->
-  PlaylistTracks.findOne {},
-    sort: [["created_at", "asc"]]
-
 addToPlaylist = (track_id) ->
   SC.get "/tracks/#{track_id}", (track) ->
     PlaylistTracks.insert
@@ -158,10 +189,9 @@ addToPlaylist = (track_id) ->
       username: track.user.username
       duration: track.duration
       artwork_url: track.artwork_url
+      position: 0
+      now_playing: false
       created_at: timestamp()
-
-removeFromPlaylist = (id) ->
-  PlaylistTracks.remove id
 
 search = (search_query) ->
   page_size = 20
@@ -169,7 +199,6 @@ search = (search_query) ->
     q: search_query,
     filter: "streamable", 
     limit: page_size, (tracks) ->
-      console.log tracks[0]
       Session.set("search_results", tracks)
 
 clearSearch = ->

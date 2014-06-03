@@ -10,6 +10,23 @@
 </head>
 
 <body>
+  {{> header}}
+
+  {{#if currentUser}}
+    {{> loggedIn}}
+  {{else}}
+    {{> loggedOut}}
+  {{/if}}
+</body>
+
+<template name="header">
+  {{#if currentUser}}
+    <img src="{{currentUser.services.soundcloud.avatar_url}}" width="50"/>
+  {{/if}}
+  {{> loginButtons}}
+</template>
+
+<template name="loggedIn">
   <section>
     <aside class="search_col">
       {{> search}}
@@ -19,12 +36,19 @@
       {{> playlist}}
     </article>
   </section>
-</body>
+</template>
+
+<template name="loggedOut">
+  <h1>Welcome to Jaybee</h1>
+  <p>Log in with Soundcloud to get tune in.</p>
+</template>
 
 <template name="controls">
+  <h2>Now Playing:</h2>
   <ul>
     {{#if now_playing}}
       <li>
+        *** {{now_playing.position}}
         <a data-track-id="{{id}}">
           <img src="{{now_playing.artwork_url}}" width="50" />
           {{now_playing.title}} - {{now_playing.user.username}} <span><small>({{length now_playing.duration}}) - ({{elapsed}})</small></span>
@@ -32,11 +56,11 @@
       </li>
     {{/if}}
     <li><a data-control="play">Play</a></li>
-    <li><a data-control="pause">Pause</a></li>
+    <!-- <li><a data-control="pause">Pause</a></li> -->
     <li><a data-control="next">Next</a></li>
-    <li><a data-control="volume-up">Volume Up</a></li>
-    <li><a data-control="volume-down">Volume Down</a></li>
-    <li><a data-control="mute">Mute</a></li>
+    <!-- <li><a data-control="volume-up">Volume Up</a></li> -->
+    <!-- <li><a data-control="volume-down">Volume Down</a></li> -->
+    <!-- <li><a data-control="mute">Mute</a></li> -->
   </ul>
 </template>
 
@@ -53,6 +77,7 @@
 </template>
 
 <template name="search">
+  <h2>Search:</h2>
   <form id="search_form">
     <input class="search" type="text" name="search" placeholder="Search for a track…" />
   </form>
