@@ -56,6 +56,11 @@ if Meteor.isClient
       volumeDown()
       return
 
+    "click [data-control=mute]": (event) ->
+      event.preventDefault()
+      toggleMute()
+      return
+
   Template.controls.now_playing = ->
     return Session.get("now_playing")
 
@@ -128,6 +133,18 @@ volumeDown = ->
     volume = sound.volume
     if volume > 0
       sound.setVolume(volume - 10)
+
+toggleMute = ->
+  sound = Session.get("now_playing_sound")
+  if sound
+    sound = soundManager.getSoundById(sound.sID)
+    volume = sound.volume
+    if volume is 0
+      pre_mute_volume = Session.get("pre_mute_volume") || 80
+      sound.setVolume(pre_mute_volume)
+    else
+      Session.set("pre_mute_volume", volume)
+      sound.setVolume(0)
 
 nextTrack = ->
   PlaylistTracks.findOne {},
