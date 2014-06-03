@@ -4,8 +4,8 @@ if Meteor.isClient
   # Search
   Template.search.events 
     "keyup input.search": (event) ->
-      console.log "Input: ", event.currentTarget.value
-      search event.currentTarget.value
+      query = event.currentTarget.value
+      if query then search query else clearSearch()
       return
 
   # Search Results
@@ -62,6 +62,9 @@ if Meteor.isClient
   Template.controls.length = (duration) ->
     return track_length(duration)
 
+  Template.controls.elapsed = ->
+    return Session.get("now_playing_elapsed")
+
 if Meteor.isServer
   Meteor.startup ->
 
@@ -84,6 +87,8 @@ play = ->
     # Play it
     sound.play
       onfinish: playNext
+      whileplaying: ->
+        elapsed @position
 
   # Remove from playlist
   removeFromPlaylist track._id
@@ -95,6 +100,10 @@ playNext = ->
   # Play's the next track 
   # if the Session data is empty.
   play()
+
+elapsed = (position) ->
+  elapsed_time = track_length position
+  Session.set("now_playing_elapsed", elapsed_time)
 
 clearPlaying = ->
   Session.set("now_playing", null)
@@ -129,20 +138,25 @@ addToPlaylist = (track_id) ->
     PlaylistTracks.insert
       track_id: track.id
       title:    track.title
+      username: track.user.username
       duration: track.duration
+      artwork_url: track.artwork_url
       created_at: timestamp()
 
 removeFromPlaylist = (id) ->
   PlaylistTracks.remove id
 
 search = (search_query) ->
-  console.log search_query
   page_size = 20
   SC.get "/tracks", 
     q: search_query,
     filter: "streamable", 
     limit: page_size, (tracks) ->
+      console.log tracks[0]
       Session.set("search_results", tracks)
+
+clearSearch = ->
+  Session.set("search_results", null)  
 
 track_length = (duration) ->
   seconds = parseInt((duration/1000)%60)

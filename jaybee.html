@@ -25,7 +25,10 @@
   <ul>
     {{#if now_playing}}
       <li>
-        <a data-track-id="{{id}}">{{now_playing.title}} - {{now_playing.user.username}} <span><small>({{length now_playing.duration}})</small></span></a>
+        <a data-track-id="{{id}}">
+          <img src="{{now_playing.artwork_url}}" width="50" />
+          {{now_playing.title}} - {{now_playing.user.username}} <span><small>({{length now_playing.duration}}) - ({{elapsed}})</small></span>
+        </a>
       </li>
     {{/if}}
     <li><a data-control="play">Play</a></li>
@@ -40,7 +43,10 @@
   <h2>Playlist</h2>
   {{#each tracks}}
     <li>
-      <a data-track-id="{{id}}">{{title}} - {{user.username}} <span><small>({{length duration}})</small></span></a>
+      <a data-track-id="{{id}}">
+        <img src="{{artwork_url}}" width="50" />
+        {{title}} - {{user.username}} <span><small>({{length duration}})</small></span>
+      </a>
     </li>
   {{/each}}
 </template>
@@ -55,7 +61,10 @@
   <ul>
     {{#each results}}
       <li>
-        <a data-track-id="{{id}}">{{title}} - {{user.username}} <span><small>({{length duration}})</small></span></a>
+        <a data-track-id="{{id}}">
+          <img src="{{artwork_url}}" width="50" />
+          {{title}} - {{user.username}} <span><small>({{length duration}})</small></span>
+        </a>
       </li>
     {{/each}}
   </ul>
