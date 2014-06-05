@@ -12,14 +12,16 @@ play = (id) ->
     # Stop anything thats playing
     soundManager.stopAll()
 
-    # Set Session sound
-    Session.set("now_playing_sound", sound)
-
     # Start playing the track
     sound.play
       onfinish: playNext
       whileplaying: ->
-        # elapsed track, @position
+        elapsed id, @position
+
+    # sound.play
+    #   onfinish: playNext
+    #   whileplaying: ->
+    #     elapsed id, @position
 
 playNext = ->
   # Clear the currently playing Session data
@@ -32,14 +34,14 @@ playNext = ->
   else
     console.log "Add a track to the playlist"
 
-elapsed = (track, position) ->
-  console.log position, track.position
+elapsed = (id, position) ->
+  track = PlaylistTracks.findOne id
+
   if position > track.position
     PlaylistTracks.update track._id,
       $set:
         position: position
 
-  console.log position
   elapsed_time = track_length position
   Session.set "local_elapsed_time", elapsed_time
 
@@ -49,11 +51,11 @@ togglePause = ->
 
 clearPlaying = ->
   # Clear Sound Manager sound from session
-  # Session.set("now_playing_sound", null)
-  # console.log("now_playing_sound", Session.get("now_playing_sound"))
+  Session.set("now_playing_sound", null)
+  console.log("now_playing_sound", Session.get("now_playing_sound"))
 
   # Clear local time position
-  # Session.set("local_track_position", null)
+  Session.set("local_track_position", null)
   # console.log("local_track_position", Session.get("local_track_position"))
 
   # Mark track as not playing
@@ -77,34 +79,6 @@ markAsNowPlaying = (track) ->
   PlaylistTracks.update track._id,
     $set:
       now_playing: true
-
-volumeUp = ->
-  sound = Session.get("now_playing_sound")
-  if sound
-    sound = soundManager.getSoundById(sound.sID)
-    volume = sound.volume
-    if volume < 100
-      sound.setVolume(volume + 10)
-
-volumeDown = ->
-  sound = Session.get("now_playing_sound")
-  if sound
-    sound = soundManager.getSoundById(sound.sID)
-    volume = sound.volume
-    if volume > 0
-      sound.setVolume(volume - 10)
-
-toggleMute = ->
-  sound = Session.get("now_playing_sound")
-  if sound
-    sound = soundManager.getSoundById(sound.sID)
-    volume = sound.volume
-    if volume is 0
-      pre_mute_volume = Session.get("pre_mute_volume") || 80
-      sound.setVolume(pre_mute_volume)
-    else
-      Session.set("pre_mute_volume", volume)
-      sound.setVolume(0)
 
 addToPlaylist = (track_id) ->
   SC.get "/tracks/#{track_id}", (track) ->
@@ -188,7 +162,12 @@ if Meteor.isClient
   Template.controls.events 
     "click [data-control=play]": (event) ->
       event.preventDefault()
-      play nowPlaying()._id
+
+      track = nowPlaying()
+      if track
+        play track._id
+      else
+        playNext()
       return
 
     "click [data-control=pause]": (event) ->
@@ -201,21 +180,6 @@ if Meteor.isClient
       playNext()
       return
 
-    "click [data-control=volume-up]": (event) ->
-      event.preventDefault()
-      volumeUp()
-      return
-
-    "click [data-control=volume-down]": (event) ->
-      event.preventDefault()
-      volumeDown()
-      return
-
-    "click [data-control=mute]": (event) ->
-      event.preventDefault()
-      toggleMute()
-      return
-
     # Controls
     Template.controls.now_playing = ->
       return nowPlaying()
@@ -224,7 +188,7 @@ if Meteor.isClient
       return track_length(duration)
 
     Template.controls.elapsed = ->
-      return Session.get("local_elapsed_time")
+      return Session.get "local_elapsed_time"
 
 # Server
 #
