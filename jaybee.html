@@ -48,13 +48,14 @@
   <h2>Now Playing:</h2>
   <ul>
     {{#if now_playing}}
-      <li>
-        *** {{now_playing.position}}
-        <a data-track-id="{{id}}">
-          <img src="{{now_playing.artwork_url}}" width="50" />
-          {{now_playing.title}} - {{now_playing.user.username}} <span><small>({{length now_playing.duration}}) - ({{elapsed}})</small></span>
-        </a>
-      </li>
+      {{#with now_playing}}
+        <li>
+          <a data-track-id="{{id}}">
+            <img src="{{now_playing.artwork_url}}" width="50" />
+            {{title}} - {{user.username}} <span><small>({{length duration}}) - ({{elapsed}})</small></span>
+          </a>
+        </li>
+      {{/with}}
     {{/if}}
     <li><a data-control="play">Play</a></li>
     <li><a data-control="pause">Pause</a></li>

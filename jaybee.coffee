@@ -1,167 +1,82 @@
+# Collections
+#
 @PlaylistTracks = new Meteor.Collection("playlist_tracks")
 
-if Meteor.isClient
-  # Search
-  Template.search.events 
-    "keyup input.search": (event) ->
-      query = event.currentTarget.value
-      if query then search query else clearSearch()
-      return
+# Functions
+#
+play = (id) ->
+  track = PlaylistTracks.findOne id
 
-  # Search Results
-  Template.searchResults.events 
-    "click a": (event) ->
-      event.preventDefault()
-      addToPlaylist event.currentTarget.dataset.trackId
-      return
-
-  Template.searchResults.results = ->
-    return Session.get("search_results")
-
-  Template.searchResults.length = (duration) ->
-    return track_length(duration)
-
-  # Playlist
-  Template.playlist.tracks = ->
-    return PlaylistTracks.find {now_playing: false}, 
-      sort: [["created_at", "asc"]]
-
-  Template.playlist.length = (duration) ->
-    return track_length(duration)
-
-  # Controls
-  Template.controls.events 
-    "click [data-control=play]": (event) ->
-      event.preventDefault()
-      Meteor.call('play')
-      return
-
-    "click [data-control=pause]": (event) ->
-      event.preventDefault()
-      Meteor.call('togglePause')
-      return
-
-    "click [data-control=next]": (event) ->
-      event.preventDefault()
-      Meteor.call('playNext')
-      return
-
-    "click [data-control=volume-up]": (event) ->
-      event.preventDefault()
-      Meteor.call('volumeUp')
-      return
-
-    "click [data-control=volume-down]": (event) ->
-      event.preventDefault()
-      Meteor.call('volumeDown')
-      return
-
-    "click [data-control=mute]": (event) ->
-      event.preventDefault()
-      Meteor.call('toggleMute')
-      return
-
-    # Controls
-    Template.controls.now_playing = ->
-      return Meteor.call('nowPlaying')
-
-    Template.controls.length = (duration) ->
-      return track_length(duration)
-
-    Template.controls.elapsed = ->
-      position = Session.get("local_track_position")
-      if position
-        return track_length Session.get("local_track_position")
-      else
-        return
-
-if Meteor.isServer
-  Meteor.startup ->
-
-Meteor.methods
-  play: ->
-    console.log "Play!"
-    track = Meteor.call('nowPlaying')
-
-    # Set now_playing
-    unless track
-      track = Meteor.call('nextTrack')
-      console.log("1:", track)
-      Meteor.call('markAsNowPlaying', track)
-      console.log("2:", track)
-
-    # Play it
-    SC.stream "/tracks/#{track.track_id}", (sound) ->    
-      # Set Session sound
-      Session.set("now_playing_sound", sound)
-
-      # Start playing the track
-      console.log "About to Play!"
-      sound.play
-        onfinish: ->
-          Mateor.call('unload')
-          Mateor.call('playNext')
-        whileplaying: ->
-          console.log "PLAYINGGGGGG!"
-          Meteor.call('elapsed', @position)
-          @onPosition 30000, ->
-            Meteor.call('playNext')
-
-  playNext: ->
+  # Play it
+  SC.stream "/tracks/#{track.track_id}", (sound) ->
     # Stop anything thats playing
     soundManager.stopAll()
 
-    # Clear the currently playing Session data
-    Meteor.call('clearPlaying')
+    # Set Session sound
+    Session.set("now_playing_sound", sound)
 
-    # Play's the next track 
-    # if the Session data is empty.
-    Meteor.call('play')
+    # Start playing the track
+    sound.play
+      onfinish: playNext
+      whileplaying: ->
+        # elapsed track, @position
 
-  elapsed: (position) ->
-    track = Meteor.call('nowPlaying')
-    Session.set("local_track_position", position)
-    # updateTime(track, position)
+playNext = ->
+  # Clear the currently playing Session data
+  clearPlaying()
 
-  # updateTime = (track, position) ->
-  #   # Only update the track position if
-  #   # we're the only client up to date/on-time.
-  #   if position > track.position
-  #     # console.log("updating time to #{position}")
-  #     PlaylistTracks.update track._id,
-  #       $set:
-  #         position: position
+  track = nextTrack()
 
-  nowPlaying: ->
-    # PlaylistTracks.findOne({now_playing: true}, {sort: [["created_at", "asc"]]})
-    PlaylistTracks.findOne {now_playing: true},
-      sort: [["created_at", "asc"]]
+  if track
+    markAsNowPlaying track
+  else
+    console.log "Add a track to the playlist"
 
-  markAsNowPlaying: (track) ->
-    # PlaylistTracks.update(track._id, {$set: {now_playing: true}})
+elapsed = (track, position) ->
+  console.log position, track.position
+  if position > track.position
     PlaylistTracks.update track._id,
       $set:
-        now_playing: true
+        position: position
 
-  nextTrack: ->
-    # PlaylistTracks.findOne({now_playing: false}, {sort: [["created_at", "asc"]]})
-    PlaylistTracks.findOne {now_playing: false}, 
-      sort: [["created_at", "asc"]]
+  console.log position
+  elapsed_time = track_length position
+  Session.set "local_elapsed_time", elapsed_time
 
-  clearPlaying: ->
-    # Clear Sound Manager sound from session
-    Session.set("now_playing_sound", null)
+togglePause = ->
+  now_playing_sound = Session.get("now_playing_sound")
+  soundManager.togglePause(now_playing_sound.sID)
 
-    # Clear local time position
-    Session.set("local_track_position", null)
+clearPlaying = ->
+  # Clear Sound Manager sound from session
+  # Session.set("now_playing_sound", null)
+  # console.log("now_playing_sound", Session.get("now_playing_sound"))
 
-    # Mark track as not playing
-    track = Meteor.call('nowPlaying')
-    PlaylistTracks.remove track._id
+  # Clear local time position
+  # Session.set("local_track_position", null)
+  # console.log("local_track_position", Session.get("local_track_position"))
 
-  togglePause: ->
-    now_playing_sound = Session.get("now_playing_sound")
-    soundManager.togglePause(now_playing_sound.sID)
+  # Mark track as not playing
+  track = nowPlaying()
+  if track
+    PlaylistTracks.remove(track._id)
+  # console.log("Now playing (should be null): ", nowPlaying())
+
+nextTrack = ->
+  # PlaylistTracks.findOne({now_playing: false}, {sort: [["created_at", "asc"]]})
+  PlaylistTracks.findOne {now_playing: false}, 
+    sort: [["created_at", "asc"]]
+
+nowPlaying = ->
+  # PlaylistTracks.findOne({now_playing: true}, {sort: [["created_at", "asc"]]})
+  PlaylistTracks.findOne {now_playing: true},
+    sort: [["created_at", "asc"]]
+
+markAsNowPlaying = (track) ->
+  # PlaylistTracks.update(track._id, {$set: {now_playing: true}})
+  PlaylistTracks.update track._id,
+    $set:
+      now_playing: true
 
 volumeUp = ->
   sound = Session.get("now_playing_sound")
@@ -231,3 +146,87 @@ track_length = (duration) ->
 
 timestamp = ->
   new Date()
+
+# Client
+#
+if Meteor.isClient
+  Meteor.autosubscribe () ->
+    PlaylistTracks.find().observeChanges
+      changed: (id, fields) ->
+        if fields.now_playing and fields.now_playing == true
+          play id
+
+  # Search
+  Template.search.events 
+    "keyup input.search": (event) ->
+      query = event.currentTarget.value
+      if query then search query else clearSearch()
+      return
+
+  # Search Results
+  Template.searchResults.events 
+    "click a": (event) ->
+      event.preventDefault()
+      addToPlaylist event.currentTarget.dataset.trackId
+      return
+
+  Template.searchResults.results = ->
+    return Session.get("search_results")
+
+  Template.searchResults.length = (duration) ->
+    return track_length(duration)
+
+  # Playlist
+  Template.playlist.tracks = ->
+    return PlaylistTracks.find {now_playing: false}, 
+      sort: [["created_at", "asc"]]
+
+  Template.playlist.length = (duration) ->
+    return track_length(duration)
+
+  # Controls
+  Template.controls.events 
+    "click [data-control=play]": (event) ->
+      event.preventDefault()
+      play nowPlaying()._id
+      return
+
+    "click [data-control=pause]": (event) ->
+      event.preventDefault()
+      togglePause()
+      return
+
+    "click [data-control=next]": (event) ->
+      event.preventDefault()
+      playNext()
+      return
+
+    "click [data-control=volume-up]": (event) ->
+      event.preventDefault()
+      volumeUp()
+      return
+
+    "click [data-control=volume-down]": (event) ->
+      event.preventDefault()
+      volumeDown()
+      return
+
+    "click [data-control=mute]": (event) ->
+      event.preventDefault()
+      toggleMute()
+      return
+
+    # Controls
+    Template.controls.now_playing = ->
+      return nowPlaying()
+
+    Template.controls.length = (duration) ->
+      return track_length(duration)
+
+    Template.controls.elapsed = ->
+      return Session.get("local_elapsed_time")
+
+# Server
+#
+if Meteor.isServer
+  Meteor.startup ->
