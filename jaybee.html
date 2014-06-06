@@ -34,6 +34,7 @@
       {{> searchResults}}
     </aside><article class="playlist_col">
       {{> controls}}
+      {{> now_playing }}
       {{> playlist}}
     </article>
   </section>
@@ -45,32 +46,39 @@
 </template>
 
 <template name="controls">
-  <h2>Now Playing:</h2>
+  <h2>Controls:</h2>
   <ul>
-    {{#if now_playing}}
-      {{#with now_playing}}
-        <li>
-          <a data-track-id="{{id}}">
-            <img src="{{now_playing.artwork_url}}" width="50" />
-            {{title}} - {{user.username}} <span><small>({{length duration}}) - ({{elapsed}})</small></span>
-          </a>
-        </li>
-      {{/with}}
-    {{/if}}
     <li><a data-control="play">Play</a></li>
     <li><a data-control="pause">Pause</a></li>
     <li><a data-control="next">Next</a></li>
   </ul>
 </template>
 
+<template name="now_playing">
+  <h2>Now Playing:</h2>
+  {{#with now_playing}}
+    <div>
+      <img src="{{now_playing.artwork_url}}" width="50" />
+      {{title}} - {{username}} <span><small>({{length duration}}) - ({{elapsed}})</small></span>
+      <ul>
+        <li><a href="{{permalink_url}}" target="_blank">Soundcloud</a></li>
+      </ul>
+    </div>
+  {{/with}}
+</template>
+
 <template name="playlist">
   <h2>Playlist</h2>
   {{#each tracks}}
     <li>
-      <a data-track-id="{{id}}">
-        <img src="{{artwork_url}}" width="50" />
-        {{title}} - {{user.username}} <span><small>({{length duration}})</small></span>
-      </a>
+      <img src="{{artwork_url}}" width="50" />
+      {{title}} - {{username}} <span><small>({{length duration}})</small></span>
+      <ul>
+        <li>
+          <a class="remove" data-track-id="{{_id}}">Remove</a>
+          <a href="{{permalink_url}}" target="_blank">Soundcloud</a>
+        </li>
+      </ul>
     </li>
   {{/each}}
 </template>
@@ -86,10 +94,16 @@
   <ul>
     {{#each results}}
       <li>
-        <a data-track-id="{{id}}">
+        <a class="add" data-track-id="{{id}}">
           <img src="{{artwork_url}}" width="50" />
-          {{title}} - {{user.username}} <span><small>({{length duration}})</small></span>
         </a>
+        <p>{{title}} - {{user.username}} <span><small>({{length duration}})</small></span></p>
+        <ul>
+          <li>
+            <a class="add" data-track-id="{{id}}">Add</a>
+            <a href="{{permalink_url}}" target="_blank">Soundcloud</a>
+          </li>
+        </ul>
       </li>
     {{/each}}
   </ul>

@@ -52,7 +52,7 @@ togglePause = ->
 clearPlaying = ->
   # Clear Sound Manager sound from session
   Session.set("now_playing_sound", null)
-  console.log("now_playing_sound", Session.get("now_playing_sound"))
+  # console.log("now_playing_sound", Session.get("now_playing_sound"))
 
   # Clear local time position
   Session.set("local_track_position", null)
@@ -81,22 +81,29 @@ markAsNowPlaying = (track) ->
       now_playing: true
 
 addToPlaylist = (track_id) ->
-  SC.get "/tracks/#{track_id}", (track) ->
-    PlaylistTracks.insert
-      track_id: track.id
-      title:    track.title
-      username: track.user.username
-      duration: track.duration
-      artwork_url: track.artwork_url
-      position: 0
-      now_playing: false
-      created_at: timestamp()
+  SC.get "/tracks/#{track_id}", (track, error) ->
+    if error
+      Meteor.Error(404, error.message)
+    else
+      PlaylistTracks.insert
+        track_id: track.id
+        title:    track.title
+        username: if track.user then track.user.username else "Unknown"
+        duration: track.duration
+        artwork_url: track.artwork_url
+        permalink_url: track.permalink_url
+        position: 0
+        now_playing: false
+        created_at: timestamp()
+
+removeFromPlaylist = (track_id) ->
+  PlaylistTracks.remove track_id
 
 search = (search_query) ->
   page_size = 20
   SC.get "/tracks", 
     q: search_query,
-    filter: "streamable", 
+    filter: "streamable, public",
     limit: page_size, (tracks) ->
       Session.set("search_results", tracks)
 
@@ -139,7 +146,7 @@ if Meteor.isClient
 
   # Search Results
   Template.searchResults.events 
-    "click a": (event) ->
+    "click a.add": (event) ->
       event.preventDefault()
       addToPlaylist event.currentTarget.dataset.trackId
       return
@@ -151,6 +158,12 @@ if Meteor.isClient
     return track_length(duration)
 
   # Playlist
+  Template.playlist.events 
+    "click a.remove": (event) ->
+      event.preventDefault()
+      removeFromPlaylist event.currentTarget.dataset.trackId
+      return
+
   Template.playlist.tracks = ->
     return PlaylistTracks.find {now_playing: false}, 
       sort: [["created_at", "asc"]]
@@ -180,14 +193,14 @@ if Meteor.isClient
       playNext()
       return
 
-    # Controls
-    Template.controls.now_playing = ->
+    # Now Playing
+    Template.now_playing.now_playing = ->
       return nowPlaying()
 
-    Template.controls.length = (duration) ->
-      return track_length(duration)
+    Template.now_playing.length = ->
+      return track_length @duration
 
-    Template.controls.elapsed = ->
+    Template.now_playing.elapsed = ->
       return Session.get "local_elapsed_time"
 
 # Server
