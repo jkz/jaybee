@@ -3,6 +3,19 @@ body {
   padding: 0;
 }
 
+/* Login */
+.login-text-and-button {
+  color: #f95300;
+}
+
+.login-text-and-button:hover {
+  cursor: pointer;
+}
+
+a {
+  color: #f95300;
+}
+
 a:hover {
   cursor: pointer;
 }

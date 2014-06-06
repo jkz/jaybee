@@ -94,10 +94,14 @@ addToPlaylist = (track_id) ->
         permalink_url: track.permalink_url
         position: 0
         now_playing: false
+        added_by: Meteor.user()
         created_at: timestamp()
 
 removeFromPlaylist = (track_id) ->
   PlaylistTracks.remove track_id
+
+favourite = (track_id) ->
+  SC.put "/me/favorites/#{track_id}"
 
 search = (search_query) ->
   page_size = 20
@@ -194,6 +198,13 @@ if Meteor.isClient
       return
 
     # Now Playing
+    Template.now_playing.events
+      "click a.favourite": (event) ->
+        event.preventDefault()
+        track_id = event.currentTarget.dataset.trackId
+        favourite track_id
+        return
+
     Template.now_playing.now_playing = ->
       return nowPlaying()
 

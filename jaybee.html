@@ -10,14 +10,12 @@
 </head>
 
 <body>
-  <!-- {{> header}} -->
-
-  {{> loggedIn}}
-  <!-- {{#if currentUser}}
+  {{> header}}
+  {{#if currentUser}}
     {{> loggedIn}}
   {{else}}
     {{> loggedOut}}
-  {{/if}} -->
+  {{/if}}
 </body>
 
 <template name="header">
@@ -61,6 +59,10 @@
       <img src="{{now_playing.artwork_url}}" width="50" />
       {{title}} - {{username}} <span><small>({{length duration}}) - ({{elapsed}})</small></span>
       <ul>
+        <li>Added by: {{added_by.profile.name}}</li>
+        <li>
+          <a class="favourite" data-track-id="{{track_id}}">Favourite</a>
+        </li>
         <li><a href="{{permalink_url}}" target="_blank">Soundcloud</a></li>
       </ul>
     </div>
@@ -74,8 +76,14 @@
       <img src="{{artwork_url}}" width="50" />
       {{title}} - {{username}} <span><small>({{length duration}})</small></span>
       <ul>
+        <li>Added by: {{added_by.profile.name}}</li>
         <li>
           <a class="remove" data-track-id="{{_id}}">Remove</a>
+        </li>
+        <li>
+          <a class="favourite" data-track-id="{{track_id}}">Favourite</a>
+        </li>
+        <li>
           <a href="{{permalink_url}}" target="_blank">Soundcloud</a>
         </li>
       </ul>
