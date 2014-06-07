@@ -101,7 +101,67 @@ removeFromPlaylist = (track_id) ->
   PlaylistTracks.remove track_id
 
 favourite = (track_id) ->
-  SC.put "/me/favorites/#{track_id}"
+  console.log "Favouriting: ", track_id
+  SC.put "/me/favorites/#{track_id}", (response) ->
+    favourites = Session.get 'sc.favorites'
+    console.log response, favourites.length, track_id
+    # Session.set 'sc.favorites', favourites.push(track_id)
+
+unFavourite = (track_id) ->
+  console.log "Un Favouriting: ", track_id
+  SC.delete "/me/favorites/#{track_id}", (response) ->
+    favourites = Session.get 'sc.favorites'
+    console.log favourites
+    # Session.set 'sc.favorites', favourites.pop(track_id)
+
+getFavorites = (offset = 0, limit = 200) ->
+  offset = offset
+  limit = limit
+  favorites = Session.get 'sc.favorites'
+
+  unless favorites
+    Session.set 'sc.favorites', null
+  
+  SC.get "/me/favorites", {offset: offset, limit: limit}, (response, error) ->
+    # Error?
+    if error
+      return
+
+    # array of id's
+    # [1,2,3,4] etc
+    favorites = Session.get 'sc.favorites'
+    favorites = if favorites == null then [] else favorites
+    response.forEach (track) ->
+      favorites.push track.id
+
+    Session.set 'sc.favorites', arrayUnique(favorites)
+
+    if response.length > 0
+      offset = offset + limit
+      getFavorites offset
+
+arrayUnique = (array) ->
+  a = array.concat()
+  i = 0
+
+  while i < a.length
+    j = i + 1
+
+    while j < a.length
+      a.splice j--, 1  if a[i] is a[j]
+      ++j
+    ++i
+  a
+
+inFavorites = (track_id) ->
+  favorites = Session.get('sc.favorites')
+  if favorites
+    return _.find Session.get('sc.favorites'), (track) ->
+      if track.id == track_id
+        return track
+
+accessToken = ->
+  return Meteor.user().services.soundcloud.accessToken
 
 search = (search_query) ->
   page_size = 20
@@ -135,6 +195,20 @@ timestamp = ->
 # Client
 #
 if Meteor.isClient
+  accessTokenDep = new Deps.Dependency
+
+  Meteor.subscribe 'SC.OAuth', ->
+    # Set Access Token
+    accessToken = Meteor.user().services.soundcloud.accessToken
+    if accessToken
+      accessTokenDep.changed()
+
+      SC.accessToken accessToken
+      console.log('setting access token', SC.accessToken())
+
+      # Get and set favorites
+      getFavorites()
+
   Meteor.autosubscribe () ->
     PlaylistTracks.find().observeChanges
       changed: (id, fields) ->
@@ -168,12 +242,38 @@ if Meteor.isClient
       removeFromPlaylist event.currentTarget.dataset.trackId
       return
 
+    "click a.favorite": (event) ->
+      event.preventDefault()
+      track_id = event.currentTarget.dataset.trackId
+      favourite track_id
+      return
+
+    "click a.favorited": (event) ->
+      event.preventDefault()
+      track_id = event.currentTarget.dataset.trackId
+      unFavourite track_id
+      return
+
   Template.playlist.tracks = ->
     return PlaylistTracks.find {now_playing: false}, 
       sort: [["created_at", "asc"]]
 
   Template.playlist.length = (duration) ->
     return track_length(duration)
+
+  Template.playlist.allowedToRemove = ->
+    return @added_by._id == Meteor.user()._id
+
+  Template.playlist.avatar_url = ->
+    return @added_by.services.soundcloud.avatar_url
+
+  Template.playlist.favourited = ->
+    accessTokenDep.depend()
+
+    favorites = Session.get 'sc.favorites'
+    track = $.inArray @track_id, favorites
+
+    return if track > -1 then "favorited" else "favorite"
 
   # Controls
   Template.controls.events 
@@ -199,10 +299,16 @@ if Meteor.isClient
 
     # Now Playing
     Template.now_playing.events
-      "click a.favourite": (event) ->
+      "click a.favorite": (event) ->
         event.preventDefault()
         track_id = event.currentTarget.dataset.trackId
         favourite track_id
+        return
+
+      "click a.favorited": (event) ->
+        event.preventDefault()
+        track_id = event.currentTarget.dataset.trackId
+        unFavourite track_id
         return
 
     Template.now_playing.now_playing = ->
@@ -214,7 +320,23 @@ if Meteor.isClient
     Template.now_playing.elapsed = ->
       return Session.get "local_elapsed_time"
 
+    Template.now_playing.avatar_url = ->
+      return @added_by.services.soundcloud.avatar_url
+
+    Template.now_playing.favourited = ->
+      accessTokenDep.depend()
+
+      favorites = Session.get 'sc.favorites'
+      track = $.inArray @track_id, favorites
+
+      return if track > -1 then "favorited" else "favorite"
+
 # Server
 #
 if Meteor.isServer
   Meteor.startup ->
+
+  Meteor.publish 'SC.OAuth', () ->
+    return Meteor.users.find Meteor.userId, 
+      fields: 
+        'services.soundcloud': 1

@@ -1,6 +1,6 @@
 <head>
   <title>jaybee</title>
-  <script src="//connect.soundcloud.com/sdk.js"></script>
+  <!-- <script src="//connect.soundcloud.com/sdk.js"></script> -->
   <script>
     SC.initialize({
       client_id: "bddbc50b3432a6c8034ea30a8f73ee1c",
@@ -59,9 +59,9 @@
       <img src="{{now_playing.artwork_url}}" width="50" />
       {{title}} - {{username}} <span><small>({{length duration}}) - ({{elapsed}})</small></span>
       <ul>
-        <li>Added by: {{added_by.profile.name}}</li>
+        <li>Added by: <img src="{{avatar_url}}" width="25" /></li>
         <li>
-          <a class="favourite" data-track-id="{{track_id}}">Favourite</a>
+          <a class="{{favourited}}" data-track-id="{{track_id}}">Favourite</a>
         </li>
         <li><a href="{{permalink_url}}" target="_blank">Soundcloud</a></li>
       </ul>
@@ -76,12 +76,14 @@
       <img src="{{artwork_url}}" width="50" />
       {{title}} - {{username}} <span><small>({{length duration}})</small></span>
       <ul>
-        <li>Added by: {{added_by.profile.name}}</li>
+        <li>Added by: <img src="{{avatar_url}}" width="25" /></li>
+        {{#if allowedToRemove }}
+          <li>
+            <a class="remove" data-track-id="{{_id}}">Remove</a>
+          </li>
+        {{/if}}
         <li>
-          <a class="remove" data-track-id="{{_id}}">Remove</a>
-        </li>
-        <li>
-          <a class="favourite" data-track-id="{{track_id}}">Favourite</a>
+          <a class="{{favourited}}" data-track-id="{{track_id}}">Favourite</a>
         </li>
         <li>
           <a href="{{permalink_url}}" target="_blank">Soundcloud</a>

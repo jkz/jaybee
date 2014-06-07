@@ -41,3 +41,9 @@ a:hover {
   line-height: 150%;
   height: 50px;
 }
+
+
+/* Favourites */
+a.favorited {
+  text-decoration: line-through;
+}
