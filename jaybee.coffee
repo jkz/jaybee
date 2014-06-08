@@ -97,22 +97,16 @@ removeFromPlaylist = (track_id) ->
   PlaylistTracks.remove track_id
 
 favourite = (track_id) ->
-  console.log "Favouriting: ", track_id
   SC.put "/me/favorites/#{track_id}", (response) ->
     favourites = Session.get 'sc.favorites'
-    newFavs = arrayUnique(favourites.concat([track_id]))
-    console.log Session.get('sc.favorites').length, newFavs.length
+    newFavs = arrayUnique(favourites.concat([parseInt(track_id)]))
     Session.set 'sc.favorites', newFavs
-    console.log Session.get('sc.favorites').length
 
 unFavourite = (track_id) ->
-  console.log "Un Favouriting: ", track_id
   SC.delete "/me/favorites/#{track_id}", (response) ->
     favourites = Session.get 'sc.favorites'
-    newFavs = arrayUnique(_.without(favourites, track_id))
-    console.log Session.get('sc.favorites').length, newFavs.length
+    newFavs = arrayUnique(_.without(favourites, parseInt(track_id)))
     Session.set 'sc.favorites', newFavs
-    console.log Session.get('sc.favorites').length
 
 getFavorites = (offset = 0, limit = 200) ->
   offset = offset
@@ -198,16 +192,17 @@ if Meteor.isClient
   accessTokenDep = new Deps.Dependency
 
   Meteor.subscribe 'SC.OAuth', ->
-    # Set Access Token
-    accessToken = Meteor.user().services.soundcloud.accessToken
-    if accessToken
-      accessTokenDep.changed()
+    if Meteor.user()
+      # Set Access Token
+      accessToken = Meteor.user().services.soundcloud.accessToken
+      if accessToken
+        accessTokenDep.changed()
 
-      SC.accessToken accessToken
-      console.log('setting access token', SC.accessToken())
+        SC.accessToken accessToken
+        console.log('setting access token', SC.accessToken())
 
-      # Get and set favorites
-      getFavorites()
+        # Get and set favorites
+        getFavorites()
 
   Meteor.autosubscribe () ->
     PlaylistTracks.find().observeChanges
