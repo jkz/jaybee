@@ -18,10 +18,6 @@ play = (id) ->
       whileplaying: ->
         elapsed id, @position
 
-    # sound.play
-    #   onfinish: playNext
-    #   whileplaying: ->
-    #     elapsed id, @position
 
 playNext = ->
   # Clear the currently playing Session data
@@ -104,15 +100,19 @@ favourite = (track_id) ->
   console.log "Favouriting: ", track_id
   SC.put "/me/favorites/#{track_id}", (response) ->
     favourites = Session.get 'sc.favorites'
-    console.log response, favourites.length, track_id
-    # Session.set 'sc.favorites', favourites.push(track_id)
+    newFavs = arrayUnique(favourites.concat([track_id]))
+    console.log Session.get('sc.favorites').length, newFavs.length
+    Session.set 'sc.favorites', newFavs
+    console.log Session.get('sc.favorites').length
 
 unFavourite = (track_id) ->
   console.log "Un Favouriting: ", track_id
   SC.delete "/me/favorites/#{track_id}", (response) ->
     favourites = Session.get 'sc.favorites'
-    console.log favourites
-    # Session.set 'sc.favorites', favourites.pop(track_id)
+    newFavs = arrayUnique(_.without(favourites, track_id))
+    console.log Session.get('sc.favorites').length, newFavs.length
+    Session.set 'sc.favorites', newFavs
+    console.log Session.get('sc.favorites').length
 
 getFavorites = (offset = 0, limit = 200) ->
   offset = offset
