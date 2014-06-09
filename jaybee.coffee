@@ -1,6 +1,7 @@
 # Collections
 #
 @PlaylistTracks = new Meteor.Collection("playlist_tracks")
+@PlayedTracks = new Meteor.Collection("played_tracks")
 
 # Functions
 #
@@ -23,6 +24,9 @@ play = (id) ->
           playNext()
 
 playNext = ->
+  # Add to history
+  addToHistory()
+
   # Clear the currently playing Session data
   clearPlaying()
 
@@ -62,6 +66,13 @@ clearPlaying = ->
   if track
     PlaylistTracks.remove(track._id)
   # console.log("Now playing (should be null): ", nowPlaying())
+
+addToHistory = ->
+  track = nowPlaying()
+  PlayedTracks.insert
+    track_id: track.track_id
+    added_by: Meteor.user()
+    created_at: timestamp()
 
 nextTrack = ->
   # PlaylistTracks.findOne({now_playing: false}, {sort: [["created_at", "asc"]]})
@@ -341,10 +352,3 @@ if Meteor.isServer
     return Meteor.users.find Meteor.userId, 
       fields: 
         'services.soundcloud': 1
-
-  Meteor.publish "userStatus", ->
-    Meteor.users.find { "status.online": true },
-      fields:
-        status: 1,
-        profile: 1,
-        services: 1
