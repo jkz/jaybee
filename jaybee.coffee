@@ -98,6 +98,7 @@ removeFromPlaylist = (track_id) ->
 
 favourite = (track_id) ->
   SC.put "/me/favorites/#{track_id}", (response) ->
+    console.log response
     favourites = Session.get 'sc.favorites'
     newFavs = arrayUnique(favourites.concat([parseInt(track_id)]))
     Session.set 'sc.favorites', newFavs
