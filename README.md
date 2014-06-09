@@ -8,6 +8,8 @@ Listeners can tune into the playlist through either their headphones or via a pu
 
 Jaybee aims to provide listeners with the controls to easily manage public playlists fairly.
 
+[More detail about the idea behind Jaybee](http://www.peteroome.com/2013/12/19/the-office-jukebox-mvp-i-dream-of.html).
+
 ## Getting started
 
 **Install Meteor**:  
