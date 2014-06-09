@@ -1,4 +1,4 @@
-jaybee
+# Jaybee
 ======
 
-A public jukebox
+A public jukebox.

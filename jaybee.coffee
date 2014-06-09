@@ -8,7 +8,7 @@ play = (id) ->
   track = PlaylistTracks.findOne id
 
   # Play it
-  SC.stream "/tracks/#{track.track_id}", (sound) ->
+  SC.stream "/tracks/#{track.track_id}", (sound, error) ->
     # Stop anything thats playing
     soundManager.stopAll()
 
@@ -17,7 +17,10 @@ play = (id) ->
       onfinish: playNext
       whileplaying: ->
         elapsed id, @position
-
+      onload: ->
+        if @readyState == 2
+          console.warn("There was a problem with the track.", @)
+          playNext()
 
 playNext = ->
   # Clear the currently playing Session data
