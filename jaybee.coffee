@@ -201,9 +201,7 @@ if Meteor.isClient
       accessToken = Meteor.user().services.soundcloud.accessToken
       if accessToken
         accessTokenDep.changed()
-
         SC.accessToken accessToken
-        console.log('setting access token', SC.accessToken())
 
         # Get and set favorites
         getFavorites()
@@ -330,6 +328,10 @@ if Meteor.isClient
 
       return if track > -1 then "favorited" else "favorite"
 
+    # Listeners
+    Template.listeners.listeners = ->
+      return Meteor.users.find({ "profile.online": true }).fetch()
+
 # Server
 #
 if Meteor.isServer
@@ -339,3 +341,10 @@ if Meteor.isServer
     return Meteor.users.find Meteor.userId, 
       fields: 
         'services.soundcloud': 1
+
+  Meteor.publish "userStatus", ->
+    Meteor.users.find { "status.online": true },
+      fields:
+        status: 1,
+        profile: 1,
+        services: 1

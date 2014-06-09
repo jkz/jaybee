@@ -16,6 +16,14 @@
     <img src="{{currentUser.services.soundcloud.avatar_url}}" width="50"/>
   {{/if}}
   {{> loginButtons}}
+  {{> listeners}}
+</template>
+
+<template name="listeners">
+  <h2>Listeners:</h2>
+  {{#each listeners}}
+    <a href="{{services.soundcloud.permalink_url}}" title="{{profile.name}}" target="_blank"><img src="{{services.soundcloud.avatar_url}}" width="50" alt="{{profile.name}}"/></a>
+  {{/each}}
 </template>
 
 <template name="loggedIn">

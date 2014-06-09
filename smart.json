@@ -1,5 +1,6 @@
 {
   "packages": {
-    "accounts-soundcloud": {}
+    "accounts-soundcloud": {},
+    "profile-online": {}
   }
 }

@@ -2,13 +2,19 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "accounts-soundcloud": {}
+      "accounts-soundcloud": {},
+      "profile-online": {}
     },
     "packages": {
       "accounts-soundcloud": {
         "git": "https://github.com/sylvaingi/meteor-accounts-soundcloud.git",
         "tag": "v0.1.2",
         "commit": "962879b116bdb107752fc1381d0e840f802e00ca"
+      },
+      "profile-online": {
+        "git": "https://github.com/erundook/meteor-profile-online.git",
+        "tag": "v0.1.9",
+        "commit": "a982f18f22cb2025a02a9b38815c68e23469cd4b"
       },
       "soundcloud": {
         "git": "https://github.com/sylvaingi/meteor-soundcloud.git",
