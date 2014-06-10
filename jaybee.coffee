@@ -48,19 +48,7 @@ elapsed = (id, position) ->
   elapsed_time = track_length position
   Session.set "local_elapsed_time", elapsed_time
 
-togglePause = ->
-  now_playing_sound = Session.get("now_playing_sound")
-  soundManager.togglePause(now_playing_sound.sID)
-
 clearPlaying = ->
-  # Clear Sound Manager sound from session
-  Session.set("now_playing_sound", null)
-  # console.log("now_playing_sound", Session.get("now_playing_sound"))
-
-  # Clear local time position
-  Session.set("local_track_position", null)
-  # console.log("local_track_position", Session.get("local_track_position"))
-
   # Mark track as not playing
   track = nowPlaying()
   if track
@@ -69,10 +57,31 @@ clearPlaying = ->
 
 addToHistory = ->
   track = nowPlaying()
-  PlayedTracks.insert
-    track_id: track.track_id
-    added_by: Meteor.user()
-    created_at: timestamp()
+  if track
+    PlayedTracks.insert
+      track_id: track.track_id
+      added_by: Meteor.user()
+      upVotes: track.upVotes
+      downVotes: track.downVotes
+      created_at: timestamp()
+
+upVote = ->
+  track = nowPlaying()
+  user_id = Meteor.user()._id
+  PlaylistTracks.update track._id,
+    $addToSet:
+      upVotes: user_id
+    $pull: 
+      downVotes: user_id
+
+downVote = ->
+  track = nowPlaying()
+  user_id = Meteor.user()._id
+  PlaylistTracks.update track._id,
+    $addToSet:
+      downVotes: user_id
+    $pull: 
+      upVotes: user_id
 
 nextTrack = ->
   # PlaylistTracks.findOne({now_playing: false}, {sort: [["created_at", "asc"]]})
@@ -105,6 +114,8 @@ addToPlaylist = (track_id) ->
         position: 0
         now_playing: false
         added_by: Meteor.user()
+        upVotes: []
+        downVotes: []
         created_at: timestamp()
 
 removeFromPlaylist = (track_id) ->
@@ -295,11 +306,6 @@ if Meteor.isClient
         playNext()
       return
 
-    "click [data-control=pause]": (event) ->
-      event.preventDefault()
-      togglePause()
-      return
-
     "click [data-control=next]": (event) ->
       event.preventDefault()
       playNext()
@@ -317,6 +323,16 @@ if Meteor.isClient
         event.preventDefault()
         track_id = event.currentTarget.dataset.trackId
         unFavourite track_id
+        return
+
+      "click [data-control=upvote]": (event) ->
+        event.preventDefault()
+        upVote()
+        return
+
+      "click [data-control=downvote]": (event) ->
+        event.preventDefault()
+        downVote()
         return
 
     Template.now_playing.now_playing = ->
@@ -338,6 +354,12 @@ if Meteor.isClient
       track = $.inArray @track_id, favorites
 
       return if track > -1 then "favorited" else "favorite"
+
+    Template.now_playing.total_upVotes = ->
+      return @upVotes.length
+
+    Template.now_playing.total_downVotes = ->
+      return @downVotes.length
 
     # Listeners
     Template.listeners.listeners = ->

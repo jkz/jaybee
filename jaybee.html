@@ -48,7 +48,6 @@
   <h2>Controls:</h2>
   <ul>
     <li><a data-control="play">Play</a></li>
-    <li><a data-control="pause">Pause</a></li>
     <li><a data-control="next">Next</a></li>
   </ul>
 </template>
@@ -66,6 +65,15 @@
         </li>
         <li><a href="{{permalink_url}}" target="_blank">Soundcloud</a></li>
       </ul>
+
+      <div>
+        <h3>Vote</h3>
+        <ul>
+          <li><a data-control="upvote">Up Vote</a></li>
+          <li><a data-control="downvote">Down Vote</a></li>
+          <li>Score: {{total_upVotes}}/{{total_downVotes}}</li>
+        </ul>
+      </div>
     </div>
   {{/with}}
 </template>
