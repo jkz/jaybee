@@ -47,15 +47,15 @@ From my experience of using public jukeboxes, i've noticed a few problems that r
 8. Link directly to a track on Soundcloud
 9. See a list of listeners who are tuned in.
 10. Played tracks are added to a play history.
+11. Up and down voting on tracks to gauge public opinion.
 
 ### Coming soon features
 1. A track can only be skipped if 50% of the listening audience also presses 'skip'.
-2. Up and down voting on tracks to gauge public opinion - although this seems to clash with the aforementioned feature.
-3. Anti-silence: if the playlist is empty, Jaybee will select music from the play history to fill the silence with.
-4. Non-Soundcloud sign-up and sign-in.
-5. A pause button that resumes the track based on where the playlist is currently at.
-6. Volume controls for a 'master' player; for example a soundsystem in an office.
-7. Multiple rooms - at present there is only a single room. This is obviously a problem when it comes to hosting the project online.
+2. Anti-silence: if the playlist is empty, Jaybee will select music from the play history to fill the silence with.
+3. Non-Soundcloud sign-up and sign-in.
+4. A pause button that resumes the track based on where the playlist is currently at.
+5. Volume controls for a 'master' player; for example a soundsystem in an office.
+6. Multiple rooms - at present there is only a single room. This is obviously a problem when it comes to hosting the project online.
 
 ### Nice-to-have, MVP omissions
 1. Estimates of what time a track can be expected to be played.
