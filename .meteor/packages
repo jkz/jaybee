@@ -4,9 +4,8 @@
 # but you can also edit it by hand.
 
 standard-app-packages
-autopublish
-insecure
 coffeescript
 accounts-soundcloud
 accounts-ui-unstyled
 profile-online
+iron-router

@@ -1,0 +1,25 @@
+<template name="now_playing">
+  <h2>Now Playing:</h2>
+  {{#with now_playing}}
+    <div>
+      <img src="{{now_playing.artwork_url}}" width="50" />
+      {{title}} - {{username}} <span><small>({{length duration}}) - ({{elapsed}})</small></span>
+      <ul>
+        <li>Added by: <img src="{{avatar_url}}" width="25" /></li>
+        <li>
+          <a class="{{favourited}}" data-track-id="{{track_id}}">Favourite</a>
+        </li>
+        <li><a href="{{permalink_url}}" target="_blank">Soundcloud</a></li>
+      </ul>
+
+      <div>
+        <h3>Vote</h3>
+        <ul>
+          <li><a data-control="upvote">Up Vote</a></li>
+          <li><a data-control="downvote">Down Vote</a></li>
+          <li>Score: {{total_upVotes}}/{{total_downVotes}}</li>
+        </ul>
+      </div>
+    </div>
+  {{/with}}
+</template>

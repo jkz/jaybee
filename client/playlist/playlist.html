@@ -1,0 +1,23 @@
+<template name="playlist">
+  <h2>Playlist</h2>
+  {{#each tracks}}
+    <li>
+      <img src="{{artwork_url}}" width="50" />
+      {{title}} - {{username}} <span><small>({{length duration}})</small></span>
+      <ul>
+        <li>Added by: <img src="{{avatar_url}}" width="25" /></li>
+        {{#if allowedToRemove }}
+          <li>
+            <a class="remove" data-track-id="{{_id}}">Remove</a>
+          </li>
+        {{/if}}
+        <li>
+          <a class="{{favourited}}" data-track-id="{{track_id}}">Favourite</a>
+        </li>
+        <li>
+          <a href="{{permalink_url}}" target="_blank">Soundcloud</a>
+        </li>
+      </ul>
+    </li>
+  {{/each}}
+</template>

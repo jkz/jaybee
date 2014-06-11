@@ -1,6 +1,7 @@
 {
   "packages": {
     "accounts-soundcloud": {},
-    "profile-online": {}
+    "profile-online": {},
+    "iron-router": {}
   }
 }

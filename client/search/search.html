@@ -1,0 +1,25 @@
+<template name="search">
+  <h2>Search:</h2>
+  <form id="search_form">
+    <input class="search" type="text" name="search" placeholder="Search for a track…" />
+  </form>
+</template>
+
+<template name="searchResults">
+  <ul>
+    {{#each results}}
+      <li>
+        <a class="add" data-track-id="{{id}}">
+          <img src="{{artwork_url}}" width="50" />
+        </a>
+        <p>{{title}} - {{user.username}} <span><small>({{length duration}})</small></span></p>
+        <ul>
+          <li>
+            <a class="add" data-track-id="{{id}}">Add</a>
+            <a href="{{permalink_url}}" target="_blank">Soundcloud</a>
+          </li>
+        </ul>
+      </li>
+    {{/each}}
+  </ul>
+</template>
