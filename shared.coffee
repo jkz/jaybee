@@ -5,7 +5,11 @@
 
 # Subscribes
 if Meteor.isClient
-  accessTokenDep = new Deps.Dependency
+  @accessTokenDep = new Deps.Dependency
+
+  # Init custom classes
+  @player = new Player
+  @search = new Search
 
   Meteor.subscribe 'SC.OAuth', ->
     if Meteor.user()
@@ -16,9 +20,9 @@ if Meteor.isClient
         SC.accessToken accessToken
 
         # Get and set favorites
-        getFavorites()
+        player.getFavorites()
 
-  Meteor.autosubscribe () ->
+  Meteor.autosubscribe ->
     PlaylistTracks.find().observeChanges
       changed: (id, fields) ->
         if fields.now_playing and fields.now_playing == true

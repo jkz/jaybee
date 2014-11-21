@@ -21,28 +21,29 @@ Template.now_playing.events
     downVote()
     return
 
-Template.now_playing.now_playing = ->
-  return nowPlaying()
+Template.now_playing.helpers
+  now_playing: ->
+    return player.nowPlaying()
 
-Template.now_playing.length = ->
-  return track_length @duration
+  length: ->
+    return player.track_length @duration
 
-Template.now_playing.elapsed = ->
-  return Session.get "local_elapsed_time"
+  elapsed: ->
+    return Session.get "local_elapsed_time"
 
-Template.now_playing.avatar_url = ->
-  return @added_by.services.soundcloud.avatar_url
+  avatar_url: ->
+    return @added_by.services.soundcloud.avatar_url
 
-Template.now_playing.favourited = ->
-  accessTokenDep.depend()
+  favourited: ->
+    accessTokenDep.depend()
 
-  favorites = Session.get 'sc.favorites'
-  track = $.inArray @track_id, favorites
+    favorites = Session.get 'sc.favorites'
+    track = $.inArray @track_id, favorites
 
-  return if track > -1 then "favorited" else "favorite"
+    return if track > -1 then "favorited" else "favorite"
 
-Template.now_playing.total_upVotes = ->
-  return @upVotes.length
+  total_upVotes: ->
+    return @upVotes.length
 
-Template.now_playing.total_downVotes = ->
-  return @downVotes.length
+  total_downVotes: ->
+    return @downVotes.length
