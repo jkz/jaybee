@@ -2,28 +2,30 @@ Template.now_playing.events
   "click a.favorite": (event) ->
     event.preventDefault()
     track_id = event.currentTarget.dataset.trackId
-    favourite track_id
+    player.favourite track_id
     return
 
   "click a.favorited": (event) ->
     event.preventDefault()
     track_id = event.currentTarget.dataset.trackId
-    unFavourite track_id
+    player.unFavourite track_id
     return
 
   "click [data-control=upvote]": (event) ->
     event.preventDefault()
-    upVote()
-    return
+    console.log "upvote click"
+    Meteor.call "upVote"
 
   "click [data-control=downvote]": (event) ->
     event.preventDefault()
-    downVote()
-    return
+    console.log "downVote click"
+    Meteor.call "downVote"
 
 Template.now_playing.helpers
   now_playing: ->
-    return player.nowPlaying()
+    return Meteor.call "nowPlaying", (error, track) ->
+      console.log "now_playing", track
+      return track
 
   length: ->
     return player.track_length @duration
@@ -43,7 +45,9 @@ Template.now_playing.helpers
     return if track > -1 then "favorited" else "favorite"
 
   total_upVotes: ->
+    console.log "Upvotes: ", @upVotes.length
     return @upVotes.length
 
   total_downVotes: ->
+    console.log "DownVotes: ", @downVotes.length
     return @downVotes.length

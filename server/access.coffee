@@ -25,6 +25,8 @@ Meteor.methods
       $set:
         now_playing: true
 
+    return track
+
   nowPlaying: ->
     # PlaylistTracks.findOne({now_playing: true}, {sort: [["created_at", "asc"]]})
     return PlaylistTracks.findOne {now_playing: true},
@@ -34,3 +36,47 @@ Meteor.methods
     # PlaylistTracks.findOne({now_playing: false}, {sort: [["created_at", "asc"]]})
     return PlaylistTracks.findOne {now_playing: false}, 
       sort: [["created_at", "asc"]]
+
+  upVote: ->
+    Meteor.call "nowPlaying", (error, track) ->
+      console.log "access:upVote", track
+      PlaylistTracks.update track._id,
+        $addToSet:
+          upVotes: Meteor.user()._id
+        $pull: 
+          downVotes: Meteor.user()._id
+
+  downVote: ->
+    Meteor.call "nowPlaying", (error, track) ->
+      console.log "access:downVote", track
+      PlaylistTracks.update track._id,
+        $addToSet:
+          downVotes: Meteor.user()._id
+        $pull: 
+          upVotes: Meteor.user()._id
+
+  clearPlaying: ->
+    # Mark track as not playing
+    Meteor.call "nowPlaying", (error, track) ->
+      if track
+        PlaylistTracks.remove(track._id)
+
+  addToHistory: ->
+    Meteor.call "nowPlaying", (error, track) ->
+      if track
+        PlayedTracks.insert
+          track_id: track.track_id
+          added_by: Meteor.user()
+          upVotes: track.upVotes
+          downVotes: track.downVotes
+          created_at: new Date()
+
+  elapsed: (id, position, elapsed_time) ->
+    track = PlaylistTracks.findOne id
+
+    if position > track.position
+      PlaylistTracks.update track._id,
+        $set:
+          position: position
+
+    Session.set "local_elapsed_time", elapsed_time

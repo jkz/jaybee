@@ -26,7 +26,7 @@ if Meteor.isClient
     PlaylistTracks.find().observeChanges
       changed: (id, fields) ->
         if fields.now_playing and fields.now_playing == true
-          play id
+          player.play id
 
 # Routes
 Router.map () ->

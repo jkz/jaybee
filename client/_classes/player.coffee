@@ -21,14 +21,14 @@ class window.Player
     Meteor.call 'removeFromPlaylist', track
 
   favourite: (track_id) ->
-    SC.put "/me/favorites/#{track_id}", (response) ->
+    SC.put "/me/favorites/#{track_id}", (response) =>
       console.log response
       favourites = Session.get 'sc.favorites'
       newFavs = @arrayUnique(favourites.concat([parseInt(track_id)]))
       Session.set 'sc.favorites', newFavs
 
   unFavourite: (track_id) ->
-    SC.delete "/me/favorites/#{track_id}", (response) ->
+    SC.delete "/me/favorites/#{track_id}", (response) =>
       favourites = Session.get 'sc.favorites'
       newFavs = @arrayUnique(_.without(favourites, parseInt(track_id)))
       Session.set 'sc.favorites', newFavs
@@ -97,34 +97,8 @@ class window.Player
 
     return duration_string
 
-  markAsNowPlaying: (track) ->
-    Meteor.call "markAsNowPlaying", track
-
-  nowPlaying: ->
-    Meteor.call "nowPlaying"
-
-  nextTrack: ->
-    Meteor.call "nextTrack"
-
-  downVote: ->
-    track = @nowPlaying()
-    user_id = Meteor.user()._id
-    PlaylistTracks.update track._id,
-      $addToSet:
-        downVotes: user_id
-      $pull: 
-        upVotes: user_id
-
-  upVote: ->
-    track = @nowPlaying()
-    user_id = Meteor.user()._id
-    PlaylistTracks.update track._id,
-      $addToSet:
-        upVotes: user_id
-      $pull: 
-        downVotes: user_id
-
   play: (id) ->
+    console.log "play"
     track = PlaylistTracks.findOne id
 
     # Play it
@@ -144,42 +118,21 @@ class window.Player
 
   playNext: ->
     # Add to history
-    addToHistory()
+    Meteor.call "addToHistory"
 
     # Clear the currently playing Session data
-    clearPlaying()
+    Meteor.call "clearPlaying"
 
-    track = nextTrack()
+    Meteor.call "nextTrack", (error, track) =>
+      if track
+        @markAsNowPlaying track
+      else
+        console.log "Add a track to the playlist"
 
-    if track
-      markAsNowPlaying track
-    else
-      console.log "Add a track to the playlist"
+  markAsNowPlaying: (track) ->
+    Session.set "now_playing", track
+    Meteor.call "markAsNowPlaying", track
 
   elapsed: (id, position) ->
-    track = PlaylistTracks.findOne id
-
-    if position > track.position
-      PlaylistTracks.update track._id,
-        $set:
-          position: position
-
-    elapsed_time = @track_length position
-    Session.set "local_elapsed_time", elapsed_time
-
-  clearPlaying: ->
-    # Mark track as not playing
-    track = @nowPlaying()
-    if track
-      PlaylistTracks.remove(track._id)
-    # console.log("Now playing (should be null): ", nowPlaying())
-
-  addToHistory: ->
-    track = @nowPlaying()
-    if track
-      PlayedTracks.insert
-        track_id: track.track_id
-        added_by: Meteor.user()
-        upVotes: track.upVotes
-        downVotes: track.downVotes
-        created_at: new Date()
+    elapsed_time = @track_length(position)
+    Meteor.call "elapsed", [id, position, elapsed_time]
