@@ -25,6 +25,10 @@ if Meteor.isClient
   Meteor.autosubscribe ->
     PlaylistTracks.find().observeChanges
       changed: (id, fields) ->
+        # Update now playing
+        Meteor.call "nowPlaying", (error, track) ->
+          Session.set "now_playing", track
+
         if fields.now_playing and fields.now_playing == true
           player.play id
 

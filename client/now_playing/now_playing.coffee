@@ -23,9 +23,7 @@ Template.now_playing.events
 
 Template.now_playing.helpers
   now_playing: ->
-    return Meteor.call "nowPlaying", (error, track) ->
-      console.log "now_playing", track
-      return track
+    return Session.get "now_playing"
 
   length: ->
     return player.track_length @duration
