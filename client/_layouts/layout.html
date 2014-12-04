@@ -1,0 +1,23 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Jaybee</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+</body>
+
+<template name="header">
+  <header>
+    <h1>Jaybee</h1>
+    <nav>
+      {{#if currentUser}}
+        <img class="avatar" src="{{currentUser.services.soundcloud.avatar_url}}" />
+      {{/if}}
+      {{> loginButtons}}
+      <!-- {{> listeners}} -->
+    </nav>
+  </header>
+</template>

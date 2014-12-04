@@ -3,6 +3,53 @@ body {
   padding: 0;
 }
 
+h1 {
+  font-size: 1.6em;
+  color: #fff;
+  font-weight: 500;
+}
+
+h2 {
+
+}
+
+h3 {
+
+}
+
+
+/* Header */
+header {
+  padding: 15px 25px;
+  background: #343434;
+}
+
+header h1,
+nav {
+  display: inline-block;
+  width: 50%;
+}
+
+nav {
+  text-align: right;
+}
+
+.avatar,
+.login-buttons {
+  display: inline-block;
+}
+
+.avatar {
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
+  width: 40px;
+}
+
+.login-buttons {
+  max-width: 200px;
+}
+
 /* Login */
 .login-text-and-button {
   color: #f95300;
