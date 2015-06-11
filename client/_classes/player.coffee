@@ -108,13 +108,14 @@ class window.Player
 
       # Start playing the track
       sound.play
-        onfinish: @playNext
+        onfinish: ->
+          playerInstance.playNext()
         whileplaying: ->
           playerInstance.elapsed track, @position
         onload: ->
           if @readyState == 2
             console.warn "There was a problem with the track.", @
-            @playNext()
+            playerInstance.playNext()
 
   playNext: ->
     # Add to history
@@ -130,6 +131,7 @@ class window.Player
         console.log "Add a track to the playlist"
 
   markAsNowPlaying: (track) ->
+    @elapsed(track, 0)
     Session.set "now_playing", track
     Meteor.call "markAsNowPlaying", track
 

@@ -3,7 +3,7 @@
   {{#each tracks}}
     <li>
       <img src="{{artwork_url}}" width="50" />
-      {{title}} - {{username}} <span><small>({{length duration}})</small></span>
+      {{title}} - {{username}} <span><small>({{length duration}})</small></span>&nbsp;<a href="{{permalink_url}}" target="_blank"><i class="fa fa-external-link"></i></a>
       <ul>
         <li>Added by: <img src="{{avatar_url}}" width="25" /></li>
         {{#if allowedToRemove }}
@@ -13,9 +13,6 @@
         {{/if}}
         <li>
           <a class="{{favourited}}" data-track-id="{{track_id}}">Favourite</a>
-        </li>
-        <li>
-          <a href="{{permalink_url}}" target="_blank">Soundcloud</a>
         </li>
       </ul>
     </li>
