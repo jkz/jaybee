@@ -103,3 +103,20 @@ If you would like to be involved in the design side of this project then please 
 Logo art would be featured on the platform interface itself.
 
 Credits for all design contributions would appear, atleast, within the source code of the project as well as on this project page.
+
+
+
+
+
+
+# Features
+Master
+	- Volume control
+
+
+Slaves
+	- Option to listen
+	- Option not to listen
+
+
+

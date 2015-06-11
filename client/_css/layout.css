@@ -67,6 +67,12 @@ a:hover {
   cursor: pointer;
 }
 
+section {
+  display: inline-block;
+  width: 100%;
+  clear: both;
+}
+
 .search_col,
 .playlist_col {
   display: inline-block;
@@ -74,21 +80,24 @@ a:hover {
 }
 
 .playlist_col {
-  width: 60%;
+  width: 59%;
+  margin-left: 1%;
 }
 
 .search_col {
-  width: 40%;
+  width: 39%;
+  margin-right: 1%;
 }
 
 /* Search Form */
 .search {
-  width: 100%;
+  width: 98%;
   font-size: 1.4em;
   line-height: 150%;
   height: 50px;
+  border: 1px solid rgb(238, 238, 238);
+  padding: 1%;
 }
-
 
 /* Favourites */
 a.favorited {
