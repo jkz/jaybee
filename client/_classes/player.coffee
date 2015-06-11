@@ -97,9 +97,9 @@ class window.Player
 
     return duration_string
 
-  play: (id) ->
+  play: (track) ->
     console.log "play"
-    track = PlaylistTracks.findOne id
+    playerInstance = @
 
     # Play it
     SC.stream "/tracks/#{track.track_id}", (sound, error) ->
@@ -110,7 +110,7 @@ class window.Player
       sound.play
         onfinish: @playNext
         whileplaying: ->
-          elapsed id, @position
+          playerInstance.elapsed track, @position
         onload: ->
           if @readyState == 2
             console.warn "There was a problem with the track.", @
@@ -133,6 +133,8 @@ class window.Player
     Session.set "now_playing", track
     Meteor.call "markAsNowPlaying", track
 
-  elapsed: (id, position) ->
+  elapsed: (track, position) =>
     elapsed_time = @track_length(position)
-    Meteor.call "elapsed", [id, position, elapsed_time]
+
+    Session.set "local_elapsed_time", elapsed_time
+    Meteor.call "elapsed", [track, position, elapsed_time]

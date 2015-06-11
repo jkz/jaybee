@@ -3,7 +3,7 @@ Template.controls.events
     event.preventDefault()
     Meteor.call "nowPlaying", (error, track) ->
       if track
-        player.play track._id
+        player.play track
       else
         player.playNext()
 

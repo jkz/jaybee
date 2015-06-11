@@ -11,6 +11,13 @@ if Meteor.isClient
   @player = new Player
   @search = new Search
 
+  # Set NowPlaying Track
+  # Sometimes there is one in the playlist, but it's
+  # not set on the UI.
+  # This sets it on the UI.
+  Meteor.call "nowPlaying", (error, track) ->
+    @player.markAsNowPlaying track if track
+
   Meteor.subscribe 'SC.OAuth', ->
     if Meteor.user()
       # Set Access Token
@@ -22,15 +29,16 @@ if Meteor.isClient
         # Get and set favorites
         player.getFavorites()
 
-  Meteor.autosubscribe ->
+  # Track shit to publish to everyone! \o/
+  Tracker.autorun ->
     PlaylistTracks.find().observeChanges
       changed: (id, fields) ->
         # Update now playing
         Meteor.call "nowPlaying", (error, track) ->
           Session.set "now_playing", track
 
-        if fields.now_playing and fields.now_playing == true
-          player.play id
+          if track.now_playing == true
+            player.play track
 
 # Routes
 Router.map () ->

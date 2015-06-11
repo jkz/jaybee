@@ -71,12 +71,8 @@ Meteor.methods
           downVotes: track.downVotes
           created_at: new Date()
 
-  elapsed: (id, position, elapsed_time) ->
-    track = PlaylistTracks.findOne id
-
+  elapsed: (track, position, elapsed_time) ->
     if position > track.position
       PlaylistTracks.update track._id,
         $set:
           position: position
-
-    Session.set "local_elapsed_time", elapsed_time
