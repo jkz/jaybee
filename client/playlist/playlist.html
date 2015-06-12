@@ -11,9 +11,9 @@
             <a class="remove" data-track-id="{{_id}}">Remove</a>
           </li>
         {{/if}}
-        <li>
-          <a class="{{favourited}}" data-track-id="{{track_id}}">Favourite</a>
-        </li>
+        <a class="{{favourited}}" data-track-id="{{track_id}}" title="Favourite me!">
+          <i class="fa fa-heart"></i>
+        </a>
       </ul>
     </li>
   {{/each}}

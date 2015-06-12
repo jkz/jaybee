@@ -28,6 +28,8 @@ header h1,
 nav {
   display: inline-block;
   width: 50%;
+  padding: 0;
+  margin: 0;
 }
 
 nav {
@@ -35,19 +37,23 @@ nav {
 }
 
 .avatar,
-.login-buttons {
+#login-buttons {
   display: inline-block;
 }
 
 .avatar {
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 30px;
   width: 40px;
+  border-color: #f95300;
+  border-width: 3px;
+  border-style: solid;
 }
 
-.login-buttons {
+#login-buttons {
   max-width: 200px;
+  margin: 0 20px 0 0;
 }
 
 /* Login */
@@ -57,6 +63,19 @@ nav {
 
 .login-text-and-button:hover {
   cursor: pointer;
+}
+
+.login-text-and-button > div {
+  width: auto;
+  display: inline-block;
+}
+
+.login-text-and-button :first-child {
+  margin-right: 5px;
+}
+
+.login-text-and-button :last-child {
+  margin-left: 5px;
 }
 
 a {
@@ -69,7 +88,7 @@ a:hover {
 
 section {
   display: inline-block;
-  width: 100%;
+  padding: 15px 25px;
   clear: both;
 }
 
@@ -100,6 +119,23 @@ section {
 }
 
 /* Favourites */
+a.favorite {
+  color: black;
+}
+
+a.favorite:hover,
 a.favorited {
-  text-decoration: line-through;
+  color: #f95300;
+}
+
+.controls {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.controls li {
+  display: inline-block;
+  font-size: 2em;
+  padding: 0 15px
 }

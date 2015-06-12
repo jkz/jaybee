@@ -18,7 +18,7 @@ class window.Player
         Meteor.call 'addToPlaylist', track
 
   removeFromPlaylist: (track_id) ->
-    Meteor.call 'removeFromPlaylist', track
+    Meteor.call 'removeFromPlaylist', track_id
 
   favourite: (track_id) ->
     SC.put "/me/favorites/#{track_id}", (response) =>

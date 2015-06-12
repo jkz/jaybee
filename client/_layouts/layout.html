@@ -11,13 +11,11 @@
 
 <template name="header">
   <header>
-    <h1>Jaybee</h1>
-    <nav>
+    <h1>Jaybee</h1><nav>
+      {{> loginButtons}}
       {{#if currentUser}}
         <img class="avatar" src="{{currentUser.services.soundcloud.avatar_url}}" />
       {{/if}}
-      {{> loginButtons}}
-      <!-- {{> listeners}} -->
     </nav>
   </header>
 </template>
