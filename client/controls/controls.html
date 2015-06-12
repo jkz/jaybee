@@ -3,5 +3,11 @@
   <ul>
     <li><a data-control="play">Play</a></li>
     <li><a data-control="next">Next</a></li>
+    <li><a class="volume" data-control="volume-up">+</a></li>
+    <li><a class="volume" data-control="volume-down">-</a></li>
   </ul>
+
+  {{#with volume}}
+    Volume: {{volume}}
+  {{/with}}
 </template>

@@ -2,6 +2,7 @@
 #
 @PlaylistTracks = new Meteor.Collection("playlist_tracks")
 @PlayedTracks = new Meteor.Collection("played_tracks")
+@Masters = new Meteor.Collection("masters")
 
 # Subscribes
 if Meteor.isClient
@@ -32,8 +33,12 @@ if Meteor.isClient
         if fields.now_playing and fields.now_playing == true
           player.play id
 
+    Masters.find().observeChanges
+      changed: (id, fields) ->
+        player.setVolume fields.volume if fields.volume?
+
+
 # Routes
 Router.map () ->
-  this.route 'home', 
+  this.route 'home',
     path: '/'
-      

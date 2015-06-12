@@ -3,7 +3,7 @@ class window.Player
     console.log "Player class"
 
   search: (search_query, page_size = 20) ->
-    SC.get "/tracks", 
+    SC.get "/tracks",
       q: search_query,
       filter: "streamable, public",
       limit: page_size, (tracks) ->
@@ -40,7 +40,7 @@ class window.Player
 
     unless favorites
       Session.set 'sc.favorites', null
-    
+
     SC.get "/me/favorites", {offset: offset, limit: limit}, (response, error) =>
       # Error?
       if error
@@ -90,7 +90,7 @@ class window.Player
     hours   = if hours < 10 then "0" + hours else hours
     minutes = if minutes < 10 then "0" + minutes else minutes
     seconds = if seconds < 10 then "0" + seconds else seconds
-    
+
     duration_string = ""
     duration_string += "#{hours}:" unless hours == "00"
     duration_string += "#{minutes}:#{seconds}"
@@ -116,6 +116,8 @@ class window.Player
             console.warn "There was a problem with the track.", @
             @playNext()
 
+          window.PLAYER = this
+
   playNext: ->
     # Add to history
     Meteor.call "addToHistory"
@@ -136,3 +138,6 @@ class window.Player
   elapsed: (id, position) ->
     elapsed_time = @track_length(position)
     Meteor.call "elapsed", [id, position, elapsed_time]
+
+  setVolume: (volume) ->
+    window.PLAYER.setVolume volume

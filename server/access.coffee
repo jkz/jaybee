@@ -34,7 +34,7 @@ Meteor.methods
 
   nextTrack: ->
     # PlaylistTracks.findOne({now_playing: false}, {sort: [["created_at", "asc"]]})
-    return PlaylistTracks.findOne {now_playing: false}, 
+    return PlaylistTracks.findOne {now_playing: false},
       sort: [["created_at", "asc"]]
 
   upVote: ->
@@ -43,7 +43,7 @@ Meteor.methods
       PlaylistTracks.update track._id,
         $addToSet:
           upVotes: Meteor.user()._id
-        $pull: 
+        $pull:
           downVotes: Meteor.user()._id
 
   downVote: ->
@@ -52,7 +52,7 @@ Meteor.methods
       PlaylistTracks.update track._id,
         $addToSet:
           downVotes: Meteor.user()._id
-        $pull: 
+        $pull:
           upVotes: Meteor.user()._id
 
   clearPlaying: ->
@@ -80,3 +80,13 @@ Meteor.methods
           position: position
 
     Session.set "local_elapsed_time", elapsed_time
+
+  createMaster: (id, volume) ->
+    Masters.upsert id, $set: {volume}
+
+  setVolume: (volume) ->
+    Masters.update 1, {volume}
+
+  changeVolume: (delta) ->
+    master = Masters.findOne(1)
+    Masters.update 1, volume: Math.max(0, Math.min(100, master.volume + delta))
